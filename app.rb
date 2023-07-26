@@ -51,13 +51,20 @@ get ("/payment/new") do
 end
 
 get ("/payment/results") do
-  @the_apr = params.fetch("users_apr").to_f/100
+  apr = params.fetch("user_apr").to_f.round(4)/100
 
-  @the_years = params.fetch("users_years").to_f
+  monthlyapr= apr/12
 
-  @the_principal = params.fetch("users_principal").to_f
+  @the_apr = (apr*100).round(4).to_s(:percentage)
 
-  @the_payment = @the_principal*((@the_apr*(1+@the_apr)**(@the_years*12))/((1+@the_apr)**(@the_years*12)-1))
+  @the_years = params.fetch("user_years").to_i
+
+  @the_principal = params.fetch("user_pv").to_f
+
+  installments = (@the_principal*(monthlyapr)*(((1+monthlyapr)**(@the_years*12))/(((1+monthlyapr)**(@the_years*12))-1))).to_f
+
+  @the_payment = installments.round(2).to_s(:currency)
+
 
   erb(:payment_results)
 end
